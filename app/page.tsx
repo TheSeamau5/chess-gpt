@@ -7,6 +7,7 @@ import { z } from 'zod'
 
 export default function Page() {
     const [game, setGame] = useState(new Chess())
+    const [board, setBoard] = useState(game.fen())
 
     const moveMutation = useMutation({
         mutationFn: async ({
@@ -41,24 +42,47 @@ export default function Page() {
                 .parse(await response.json())
 
             console.log(`AI Move: ${move}`)
+            console.log(`Board State: ${board}`)
 
             setGame((game) => {
                 game.move(move)
                 return game
             })
+
+            setBoard(board)
         },
     })
 
     return (
-        <div>
-            <Chessboard
-                position={game.fen()}
-                isDraggablePiece={({ piece }) => piece[0] == 'w'}
-                onPieceDrop={(sourceSquare, targetSquare) => {
-                    moveMutation.mutate({ sourceSquare, targetSquare })
-                    return true
-                }}
-            />
-        </div>
+        <main className='w-full h-full'>
+            <article className='w-full flex align-center'>
+                <div className='flex-1' />
+                <section>
+                    <label>Play Game</label>
+                    <Chessboard
+                        id='gameBoard'
+                        boardWidth={360}
+                        position={game.fen()}
+                        isDraggablePiece={({ piece }) => piece[0] == 'w'}
+                        onPieceDrop={(sourceSquare, targetSquare) => {
+                            moveMutation.mutate({ sourceSquare, targetSquare })
+                            return true
+                        }}
+                    />
+                </section>
+                <div className='flex-1' />
+
+                <section>
+                    <label>Board State Accoring to GPT-4</label>
+                    <Chessboard
+                        id='stateBoard'
+                        boardWidth={360}
+                        arePiecesDraggable={false}
+                        position={board}
+                    />
+                </section>
+                <div className='flex-1' />
+            </article>
+        </main>
     )
 }

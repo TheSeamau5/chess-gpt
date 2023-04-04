@@ -52,6 +52,10 @@ export async function POST(request: Request) {
                     role: 'assistant',
                     content: completion,
                 },
+                {
+                    role: 'user',
+                    content: 'What is the state of the board?',
+                },
             ]),
         ],
     })
