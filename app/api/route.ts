@@ -38,6 +38,18 @@ export async function POST(request: Request) {
 
     const completion = completionResponse.data.choices[0].message?.content!
 
+    const boardMessages = [
+        ...messages,
+        {
+            role: 'assistant' as const,
+            content: completion,
+        },
+        {
+            role: 'user' as const,
+            content: 'What is the state of the board?',
+        },
+    ]
+
     // Ask GPT-4 for the state of the board
     const stateOfBoardResponse = await openai.createChatCompletion({
         model: 'gpt-4',
@@ -47,16 +59,7 @@ export async function POST(request: Request) {
                 content:
                     'You are a chess engine. User is white and moves first. You are black and move second. Respond only with valid moves. If the user asks for the state of the board, respond only with the FEN string representing the state of the board.',
             },
-            ...messages.concat([
-                {
-                    role: 'assistant',
-                    content: completion,
-                },
-                {
-                    role: 'user',
-                    content: 'What is the state of the board?',
-                },
-            ]),
+            ...boardMessages,
         ],
     })
 
